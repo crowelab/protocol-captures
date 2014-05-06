@@ -1,0 +1,12 @@
+*.aux
+*.fbd_latex
+*.log
+*.bbl
+*.synctex.gz
+*.tex
+*.out
+*.fdb_latexmk
+*.out
+*.blg
+*.bib
+*.pyc
