@@ -1,0 +1,94 @@
+\listfiles
+\documentclass[12pt]{report}
+\usepackage[intoc]{nomencl}
+\usepackage{appendix}
+\usepackage{makecell}
+\usepackage[authoryear]{natbib}
+\usepackage[nottoc]{tocbibind}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[margin=1in]{geometry}
+
+\newcommand{\ki}{K$_{i}$}
+\newcommand{\ic}{IC$_{50}$}
+\newcommand{\mcml}{$\mu$g/mL}
+\newcommand{\ec}{EC$_{50}$ }
+\newcommand{\naive}{na\"{i}ve}
+\newcommand{\silico}{\textit{in silico}}
+\newcommand{\rosetta}{R\textsc{osetta}}
+\newcommand{\rosettadesign}{R\textsc{osetta}D\textsc{esign}}
+\newcommand{\ddg}{$\Delta\Delta$G}
+\newcommand{\microliter}{$\mu$L}
+\newcommand{\degree}{$^{\circ}$}
+
+\begin{document}
+
+\setlength{\parindent}{0cm}
+This protocol capture will detail the how to use \rosettadesign~to predict mutations that enhance specificity. This accompanies the manuscript Willis \textit{et al.} \textbf{\textit{Nature Med. Letters}} (submitted). It assumes that you have a \rosetta~license from www.rosettacommons.org. \\
+
+\textbf{Preparing the input files}: \\
+Using PG9/CAP45 complex, I have prepared a \rosetta compatible file called PG9\_input.pdb. This has spcecial identifiers for the glycans that \rosetta 's database can understand. To create your own glycan input, an excellent protocol capture is provided in an accompanying manuscript by Doug Renfrew \citep{Renfrew:2012ci}. \\
+
+The design protocol used runs through the following steps.
+
+\begin{itemize}
+\item Favor native residue - gives bonuses to sequences which match PG9\textit{wt}
+\item Design/minimize/dock iteratively
+\item Constrain movements so glycans retain input position
+\item Relax the energy of the structure
+\item Re-dock
+\item Score binding energy and structure energy
+\end{itemize}
+
+For this redesign we need several input files. The XML script, options file, residue file, and constraint file. The most complex of which, the XML file, informs Rosettaof our protocol. Use the following .xml file which is found under:
+
+\begin{verbatim}
+/input\_files/threading\_design.xml
+\end{verbatim}
+
+\textit{XML-File}
+\lstinputlisting[breaklines=true]{input_files/threading_design.xml}
+
+
+The behavior of the these instructions is described fully in \citep{Fleishman:2011ji}. They are divided up into a set of movers, filters and task of operations. All of the movers and filters along with their options are explained at the Rosetta Commons users guide (https://www.rosettacommons.org/docs/latest/RosettaScripts.html). \\
+
+\textit{Options-File}\\
+The options file are passed to the application. Defines output and input options as well as other options which can't be defined in the XML file.
+
+\lstinputlisting[breaklines=true]{input_files/threading.txt}
+Each option is explained with a \# comment.\\
+
+\textit{Residue File}\\
+The residue file tells the packer how to design the protein. The first line lets the packer use the side chains of the input PDB even if they are not in the rotamer libraries. The ``NATAA'' lines tells the packer to use input amino acid for everything not defined under start. In other words it will only design everything under start. The first column is the residue number, the second is the chain, and ``ALLAA'' tells the packer to use all amino acid identities at this position. For complete documentation of the resfile, visit https://www.rosettacommons.org/docs/latest/resfiles.html
+
+\lstinputlisting[breaklines=true]{input_files/normal_design.resfile}
+
+\textit{Constraint File} \\
+The constraint file ensures that the glycan's are involved in binding. The torsional angles of the glycan can cause major structural perturbations.
+\lstinputlisting[breaklines=true]{input_files/glycan_constraints.cst}
+
+The constrain file syntax is found in the documentation - (https://www.rosettacommons.org/docs/latest/constraint-file.html). Briefly, I define two atoms with the input crystal structure distances. If these are violated, then there is an energetic penalty. \\
+
+\textbf{Running Rosetta}\\
+
+To run Rosetta, I use an application called RosettaScripts \citep{Fleishman:2011ji}. Since we have defined all the input files. Running the application only requires passing the options file.
+
+\begin{lstlisting}[breaklines=true]
+my/path/to/rosetta/source/bin/rosetta_scripts.myoperatingsystem @input_files/threading.txt -database my/path/to/rosetta/database/
+\end{lstlisting}
+
+This protocol generates 200 models each taking approximately 1 hour to complete. It is best to run this protocol on a computational cluster with each node producing a separate model (-nstruct 1). All files are output into a directory output models/. There are 200 pre-generated models for analysis. \\
+
+\textbf{Analyzing Models} \\
+There are three scripts in the /analysis folder that are used to analyze the mutations. Score\_vs\_rmsd full.py will give all the models energies as well as how much they deviated from the original structure. Get\_per\_ddg.py will give all of the binding energies decomposed by residues. Scores\_decomposed\_by\_resfile.py will decompose the energies of HCDR3 loop. They are each run using the following.
+
+\begin{lstlisting}[breaklines=true]
+score\_vs\_rmsd\_full.py −m −n ../input\_files/pg9\_input.pdb −o s\_v\_rmsd −r ../input\_files/normal\_design.resfile ../output_files/∗.pdb
+
+get\_per\_ddg.py -m -o per\_ddg ../output\_files/∗.pdb
+
+scores\_decompose\_by\_resfile.py −m −o HCDR3 −r ../input\_files/normal\_design.res
+\end{lstlisting}
+
+These will yield a series of data files that can be uploaded to a database or in a spreadsheet viewer. The complex queries I used to check energies between wt and mutations are beyond the scope of a protocol capture. But you can contact jwillis0720@gmail.com if you need additional guidance.
+\end{document}
