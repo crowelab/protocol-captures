@@ -1,0 +1,8 @@
+-entity_resfile input_files/entity.resfile
+-fitness_file input_files/fitness.daf
+-ms
+    -pop_size 100
+    -generations 435
+    -numresults 100
+    -fraction_by_recombination .04
+-database /home/willisjr/rosetta_builds/rosetta_git/database 

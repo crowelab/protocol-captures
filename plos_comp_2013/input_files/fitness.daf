@@ -1,0 +1,13 @@
+#initialize the states and what the states file name is
+STATE_VECTOR A input_files/2B1A.states
+STATE_VECTOR B input_files/2XWT.states
+STATE_VECTOR C input_files/3HMX.states
+
+
+#tell design to minimize energy for each state
+SCALAR_EXPRESSION best_A = vmin( A )
+SCALAR_EXPRESSION best_B = vmin( B )
+SCALAR_EXPRESSION best_C = vmin( C )
+
+#Fitness - design to minimize all energies simultaneously
+FITNESS best_A + best_B + best_C

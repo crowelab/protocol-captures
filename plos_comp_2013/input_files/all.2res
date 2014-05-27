@@ -1,0 +1,8 @@
+#tells the packer to use all natural side
+#chain configurations for everything
+#that is not being designed.
+NATRO 
+#the input side chain is allowed
+use_input_sc 
+#start the residue file
+start 
