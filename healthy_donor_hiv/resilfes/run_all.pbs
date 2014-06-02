@@ -1,0 +1,17 @@
+#!/bin/csh
+#PBS -l nodes=11:ppn=1
+# Total job memory required (specify how many megabytes)
+#PBS -l mem=22000mb
+# You must specify Wall Clock time (hh:mm:ss)
+#PBS -l walltime=05:00:00
+##PBS -M jordan.r.willis@vanderbilt.edu
+##PBS -m bae
+#PBS -o logfiles/relax_output.oe
+#PBS -j oe
+
+setpkgs -a mpiexec 
+set res = `basename ${resfile} .resfile` 
+
+cd $dir
+
+mpiexec -n 11 /dors/crowelab/home/willisjr/rosetta_builds/rosetta_git/source/bin/rosetta_scripts.mpistatic.linuxgccrelease @../input_files/options.txt -database ~willisjr/rosetta_builds/rosetta_git/database/ -parser:script_vars resfiles=${res}
