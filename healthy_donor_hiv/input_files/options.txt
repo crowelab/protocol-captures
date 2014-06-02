@@ -1,0 +1,6 @@
+-out
+    -pdb_gz
+-parser
+    -protocol input_files/threading.xml
+-s input_files/input_pg9_no_antigen.pdb
+-nstruct 100
