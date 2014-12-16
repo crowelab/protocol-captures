@@ -1,0 +1,11 @@
+-s input_files/pg9_input.pdb #input PDB
+-nstruct 200 #the number of output models to generate
+-docking
+    -sc_min #minimize side chains during docking
+-parser:protocol input_files/threading_design.xml
+-ex1 #Rotmer library 1
+-ex2 #Rotmer library 2
+-ex1aro #Rotamer aromatic 1
+-out:path
+    -pdb ./output_files/
+    -score /dev/null/
